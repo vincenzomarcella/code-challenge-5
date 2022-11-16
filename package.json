@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/vincenzomarcella/code-challenge-5/issues"
   },
-  "homepage": "https://github.com/vincenzomarcella/code-challenge-5#readme"
+  "homepage": "https://github.com/vincenzomarcella/code-challenge-5#readme",
+  "dependencies": {
+    "serverless-webpack": "^5.10.0"
+  }
 }

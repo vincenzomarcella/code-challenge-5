@@ -3,9 +3,20 @@ app: code-challenge-5
 service: api
 frameworkVersion: '3'
 
+plugins:
+  - serverless-webpack
+
 provider:
   name: aws
   runtime: nodejs14.x
+
+custom:
+  webpack:
+    webpackConfig: webpack.config.js
+    packager: "npm"
+    includeModules:
+      forceExclude:
+        - aws-sdk
 
 functions:
   hello:
