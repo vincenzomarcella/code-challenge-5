@@ -1,0 +1,37 @@
+Resources:
+  TicketsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+
+      GlobalSecondaryIndexes:
+        - IndexName: byPriority
+          KeySchema: 
+            - AttributeName: priority
+              KeyType: HASH
+            - AttributeName: submissionDate
+              KeyType: RANGE
+          Projection: 
+            ProjectionType: ALL
+
+        - IndexName: byStatus
+          KeySchema: 
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: submissionDate
+              KeyType: RANGE
+          Projection: 
+            ProjectionType: ALL
+
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: priority
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+        - AttributeName: submissionDate
+          AttributeType: S

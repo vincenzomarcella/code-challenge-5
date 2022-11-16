@@ -2,15 +2,20 @@ org: vincenzomarcella
 app: code-challenge-5
 service: tickets
 frameworkVersion: '3'
+useDotenv: true
 
 provider:
   name: aws
-  runtime: nodejs14.x
+  profile: vm # specifying a specific aws profile
 
-functions:
-  hello:
-    handler: handler.hello
-    events:
-      - httpApi:
-          path: /
-          method: get
+  stage: ${opt:stage, env:AWS_STAGE, 'dev'}
+  region: ${opt:region, env:AWS_REGION, 'eu-central-1'}
+
+resources:
+  - ${file(ticketsTable.yml)}
+
+  - Outputs:
+      TicketsTableID:
+        Value: !Ref TicketsTable
+      TicketsTableArn:
+        Value: !GetAtt TicketsTable.Arn
