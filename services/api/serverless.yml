@@ -1,0 +1,16 @@
+org: vincenzomarcella
+app: code-challenge-5
+service: api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+
+functions:
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get
