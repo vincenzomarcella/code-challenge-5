@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/vincenzomarcella/code-challenge-5#readme",
   "dependencies": {
+    "serverless-iam-roles-per-function": "^3.2.0",
     "serverless-webpack": "^5.10.0"
   }
 }

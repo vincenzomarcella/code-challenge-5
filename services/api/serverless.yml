@@ -5,6 +5,7 @@ frameworkVersion: '3'
 
 plugins:
   - serverless-webpack
+  - serverless-iam-roles-per-function
 
 provider:
   name: aws
@@ -19,9 +20,62 @@ custom:
         - aws-sdk
 
 functions:
-  hello:
-    handler: handler.hello
+  fetchTickets:
+    handler: src/ticket.fetch
     events:
       - httpApi:
-          path: /
+          path: /{nextToken}
           method: get
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:Query
+        Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+
+  fetchTicket:
+    handler: src/ticket.fetch
+    events:
+      - httpApi:
+          path: /tickets/{ticketID}
+          method: get
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:GetItem
+        Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+  
+  updateTicket:
+    handler: src/ticket.update
+    events:
+      - httpApi:
+          path: /tickets/update/{ticketID}
+          method: post
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:UpdateItem
+        Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+  
+  deleteTicket:
+    handler: src/ticket.delete
+    events:
+      - httpApi:
+          path: /tickets/delete/{ticketID}
+          method: delete
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DeleteItem
+        Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+
+  createTicket:
+    handler: src/ticket.create
+    events:
+      - httpApi:
+          path: /tickets/create/{ticketID}
+          method: post
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:PutItem
+        Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
