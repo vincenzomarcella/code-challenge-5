@@ -2,6 +2,7 @@ org: vincenzomarcella
 app: code-challenge-5
 service: api
 frameworkVersion: '3'
+useDotenv: true
 
 plugins:
   - serverless-webpack
@@ -10,14 +11,22 @@ plugins:
 provider:
   name: aws
   runtime: nodejs14.x
+  profile: vm # specifying a specific aws profile
 
-custom:
-  webpack:
-    webpackConfig: webpack.config.js
-    packager: "npm"
-    includeModules:
-      forceExclude:
-        - aws-sdk
+  stage: ${opt:stage, env:AWS_STAGE, 'dev'}
+  region: ${opt:region, env:AWS_REGION, 'eu-central-1'}
+  stackName: ${self:service}-${self:provider.stage}
+
+  environment:
+    TICKETS_RESOURCE_STACK: ${param:TICKETS_RESOURCE_STACK}
+
+# custom:
+  # webpack:
+  #   webpackConfig: webpack.config.js
+  #   packager: "npm"
+  #   includeModules:
+  #     forceExclude:
+  #       - aws-sdk
 
 functions:
   fetchTickets:
@@ -79,3 +88,8 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+
+resources:
+  - Outputs:
+      AwsRegion:
+        Value: ${opt:region, self:provider.region}
