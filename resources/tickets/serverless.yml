@@ -4,7 +4,6 @@ useDotenv: true
 
 provider:
   name: aws
-  profile: vm # specifying a specific aws profile
 
   stage: ${opt:stage, env:AWS_STAGE, 'dev'}
   region: ${opt:region, env:AWS_REGION, 'eu-central-1'}

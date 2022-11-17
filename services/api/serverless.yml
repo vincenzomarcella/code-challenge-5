@@ -9,7 +9,6 @@ plugins:
 provider:
   name: aws
   runtime: nodejs14.x
-  profile: vm # specifying a specific aws profile
 
   stage: ${opt:stage, env:AWS_STAGE, 'dev'}
   region: ${opt:region, env:AWS_REGION, 'eu-central-1'}
