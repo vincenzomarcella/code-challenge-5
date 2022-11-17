@@ -26,7 +26,7 @@ jobs:
         run: npm i -g serverless
 
       - name: Install dependencies
-        run: npm i && cd services/api && npm && cd ../../resources/tickets && npm i && cd ../..
+        run: npm i && cd services/api && npm i && cd ../../resources/tickets && npm i && cd ../..
 
       - name: Deploy ephemeral environment
         run: serverless deploy --stage ${{ github.run_id }}
