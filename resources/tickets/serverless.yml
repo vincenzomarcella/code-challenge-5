@@ -20,3 +20,5 @@ resources:
         Value: !Ref TicketsTable
       TicketsTableArn:
         Value: !GetAtt TicketsTable.Arn
+      CFStack:
+        Value: ${self:provider.stackName}
