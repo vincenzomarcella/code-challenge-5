@@ -1,0 +1,8 @@
+services:
+  tickets:
+    path: resources/tickets
+
+  api:
+    path: services/api
+    params:
+      TICKETS_RESOURCE_STACK: ${tickets.CFStack}
