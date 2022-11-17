@@ -1,5 +1,3 @@
-org: vincenzomarcella
-app: code-challenge-5
 service: tickets
 frameworkVersion: '3'
 useDotenv: true
