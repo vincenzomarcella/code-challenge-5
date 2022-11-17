@@ -20,13 +20,13 @@ provider:
   environment:
     TICKETS_RESOURCE_STACK: ${param:TICKETS_RESOURCE_STACK}
 
-# custom:
-  # webpack:
-  #   webpackConfig: webpack.config.js
-  #   packager: "npm"
-  #   includeModules:
-  #     forceExclude:
-  #       - aws-sdk
+custom:
+  webpack:
+    webpackConfig: webpack.config.js
+    packager: "npm"
+    includeModules:
+      forceExclude:
+        - aws-sdk
 
 functions:
   fetchTickets:
@@ -65,11 +65,11 @@ functions:
           - dynamodb:UpdateItem
         Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
   
-  deleteTicket:
-    handler: src/ticket.delete
+  closeTicket:
+    handler: src/ticket.close
     events:
       - httpApi:
-          path: /tickets/delete/{ticketID}
+          path: /tickets/close/{ticketID}
           method: delete
     iamRoleStatements:
       - Effect: "Allow"
@@ -77,11 +77,11 @@ functions:
           - dynamodb:DeleteItem
         Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
 
-  createTicket:
-    handler: src/ticket.create
+  openTicket:
+    handler: src/ticket.open
     events:
       - httpApi:
-          path: /tickets/create/{ticketID}
+          path: /tickets/open/{ticketID}
           method: post
     iamRoleStatements:
       - Effect: "Allow"
