@@ -10,6 +10,7 @@ provider:
 
   stage: ${opt:stage, env:AWS_STAGE, 'dev'}
   region: ${opt:region, env:AWS_REGION, 'eu-central-1'}
+  stackName: ${self:service}-${self:provider.stage}
 
 resources:
   - ${file(ticketsTable.yml)}
