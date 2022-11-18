@@ -7,6 +7,12 @@ const { DynamoDBDocumentClient, QueryCommand, PutCommand } = require("@aws-sdk/l
 
 const fetch = async (event) => {
     console.debug("EVENT: ", JSON.stringify(event))
+    return {
+        statusCode: 200,
+        body: JSON.stringify({
+            message: "Hello world!",
+        }),
+    };
 }
 
 const update = async (event) => {

@@ -12,14 +12,15 @@ function sleep(ms) {
 describe("A random user goes to retrieve the support tickets", () => {
     jest.setTimeout(100000);
 
-    it("Can retrieve the homepage data", async () => {
+    it("Can retrieve the ticket data", async () => {
         const res = await httpCall(HTTP_API_URL, "/", "GET", null);
 
-        //console.log(JSON.stringify(res));
+        console.log(JSON.stringify(res));
 
         expect(res).toMatchObject({
+            //body: expect.any(String),
             message: expect.any(String),
-            endpoint: expect.any(String),
+            //endpoint: expect.any(String),
         });
     });
 });
