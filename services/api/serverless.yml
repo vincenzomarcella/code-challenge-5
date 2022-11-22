@@ -28,6 +28,8 @@ custom:
 functions:
   fetchTickets:
     handler: src/ticket.fetch
+    environment:
+      TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
     events:
       - httpApi:
           path: /{nextToken}
@@ -35,11 +37,13 @@ functions:
     iamRoleStatements:
       - Effect: "Allow"
         Action:
-          - dynamodb:Query
+          - dynamodb:Scan
         Resource: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
 
   fetchTicket:
     handler: src/ticket.fetch
+    environment:
+      TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
     events:
       - httpApi:
           path: /tickets/{ticketID}
@@ -52,6 +56,8 @@ functions:
   
   updateTicket:
     handler: src/ticket.update
+    environment:
+      TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
     events:
       - httpApi:
           path: /tickets/update/{ticketID}
@@ -64,6 +70,8 @@ functions:
   
   closeTicket:
     handler: src/ticket.close
+    environment:
+      TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
     events:
       - httpApi:
           path: /tickets/close/{ticketID}
@@ -76,9 +84,11 @@ functions:
 
   openTicket:
     handler: src/ticket.open
+    environment:
+      TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
     events:
       - httpApi:
-          path: /tickets/open/{ticketID}
+          path: /tickets/open
           method: post
     iamRoleStatements:
       - Effect: "Allow"
@@ -90,3 +100,8 @@ resources:
   - Outputs:
       AwsRegion:
         Value: ${opt:region, self:provider.region}
+      
+      TicketsTableArn:
+        Value: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableArn}
+      TicketsTableID:
+        Value: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
