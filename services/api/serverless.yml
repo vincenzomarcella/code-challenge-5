@@ -34,6 +34,7 @@ functions:
       - httpApi:
           path: /{nextToken}
           method: get
+    logging: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -48,6 +49,7 @@ functions:
       - httpApi:
           path: /tickets/{ticketID}
           method: get
+    logging: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -58,6 +60,7 @@ functions:
     handler: src/ticket.update
     environment:
       TICKETS_TABLE_ID: ${cf:${self:provider.environment.TICKETS_RESOURCE_STACK}.TicketsTableID}
+    logging: true
     events:
       - httpApi:
           path: /tickets/update/{ticketID}
@@ -76,6 +79,7 @@ functions:
       - httpApi:
           path: /tickets/close/{ticketID}
           method: delete
+    logging: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
@@ -90,6 +94,7 @@ functions:
       - httpApi:
           path: /tickets/open
           method: post
+    logging: true
     iamRoleStatements:
       - Effect: "Allow"
         Action:
