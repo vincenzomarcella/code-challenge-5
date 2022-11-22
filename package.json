@@ -18,5 +18,8 @@
   "homepage": "https://github.com/vincenzomarcella/code-challenge-5#readme",
   "devDependencies": {
     "@serverless/compose": "^1.3.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1257.0"
   }
 }
