@@ -7,8 +7,8 @@
     "export-env": "node _scripts/export-env.js",
     "deploy": "sls deploy",
     "remove": "sls remove",
-    "test": "jest --watchAll",
-    "test-ci": "jest --forceExit"
+    "test": "jest --watchAll --runInBand",
+    "test-ci": "jest --forceExit --runInBand"
   },
   "author": "",
   "license": "ISC",
