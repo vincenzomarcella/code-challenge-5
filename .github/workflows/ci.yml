@@ -35,7 +35,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Test api service
-        run: cd services/api && yarn export-env ${{ github.run_id }} && yarn test-ci && cd ../..
+        run: cd services/api && npm run export-env ${{ github.run_id }} && npm test-ci && cd ../..
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
