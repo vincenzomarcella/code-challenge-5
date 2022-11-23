@@ -6,6 +6,11 @@ on:
       - dev
       - staging
       - prod
+  pull_request:
+    branches:
+      - prod
+      - staging
+      - dev
 
 jobs:
   deploy:
@@ -19,6 +24,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v6
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
@@ -28,10 +37,10 @@ jobs:
       run: npm i -g serverless
 
     - name: Install dependencies
-      run: npm i
+      run: npm i && cd services/api && npm i && cd ../../resources/tickets && npm i && cd ../..
 
     - name: Deploy ephemeral environment
-      run: serverless deploy --stage ${{ BRANCH_NAME }}
+      run: serverless deploy --stage ${{ steps.branch-name.outputs.current_branch }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
