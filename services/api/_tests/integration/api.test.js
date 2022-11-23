@@ -5,7 +5,7 @@ const { HTTP_API_URL, TICKETS_TABLE_ID } = process.env;
 const httpCall = require("../../_lib/http-call");
 const given = require("../given");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, QueryCommand, PutCommand, ScanCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); 
+const { DynamoDBDocumentClient, ScanCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); 
 
 const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
@@ -49,10 +49,10 @@ describe("A random unauthenticated user", () => {
     });
 
     it("Can open a ticket", async () => {
-
         const res = await httpCall(HTTP_API_URL, "/tickets/open", "POST", {ticket: ticketData});
 
-       console.debug("OPEN TICKET RESPONSE: ", JSON.stringify(res));
+        //console.debug("OPEN TICKET RESPONSE: ", JSON.stringify(res));
+
         ticketItem = res.ticket
 
         expect(res).toMatchObject({
@@ -64,10 +64,10 @@ describe("A random unauthenticated user", () => {
     });
 
     it("Can retrieve a single ticket", async () => {
-        console.debug("TICKET ITEM ID: ", ticketItem.id)
+        //console.debug("TICKET ITEM ID: ", ticketItem.id)
         const res = await httpCall(HTTP_API_URL, "/tickets/" + ticketItem.id, "GET", null);
 
-        console.log("SINGLE TICKET FETCH RESULT: ", JSON.stringify(res));
+        //console.log("SINGLE TICKET FETCH RESULT: ", JSON.stringify(res));
 
         expect(res).toMatchObject({
             ticket: ticketItem
@@ -89,7 +89,7 @@ describe("A random unauthenticated user", () => {
 
         const res = await httpCall(HTTP_API_URL, "/tickets/update/" + ticketItem.id, "POST", {updates: ticketUpdates});
 
-        console.log("UPDATE TICKET RESPONSE: ", JSON.stringify(res));
+        //console.log("UPDATE TICKET RESPONSE: ", JSON.stringify(res));
 
         expect(res).toMatchObject({
             ticket: newTicketItem
@@ -108,11 +108,17 @@ describe("A random unauthenticated user", () => {
 
     it("Can retrieve paginated tickets", async () => {
         const res = await httpCall(HTTP_API_URL, "/", "GET", null);
-
-        //console.log("PAGINATED TICKETS RESULT: ", JSON.stringify(res));
+        while (res.nextToken) {
+            console.debug("NEXT TOKEN ", JSON.stringify(res.nextToken))
+            const temp = await httpCall(HTTP_API_URL, "/" + encodeURI(res.nextToken), "GET", null);
+            console.debug("TEMP: ", JSON.stringify(temp))
+            res.nextToken = temp.nextToken
+            res.tickets = res.tickets.concat(temp.tickets)
+        }
 
         expect(res).toMatchObject({
             tickets: expect.arrayContaining(tickets),
+            nextToken: undefined
         });
     });
 
