@@ -1,31 +1,32 @@
 require("dotenv").config();
-
 const { TICKETS_TABLE_ID } = process.env;
+
 const uuid = require("uuid")
-const httpCall = require("../_lib/http-call");
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBDocumentClient, QueryCommand, PutCommand, ScanCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); 
+const { DynamoDBDocumentClient, PutCommand } = require("@aws-sdk/lib-dynamodb"); 
 
-
+// utility method that performs a PutItem operation given a ticket
 const putTicket = async (ticket) => {
+    // create dynamo client
     const client = new DynamoDBClient();
     const doc = DynamoDBDocumentClient.from(client)
 
-    const res = await doc.send(
+    // perform putItem
+    await doc.send(
         new PutCommand({
             TableName: TICKETS_TABLE_ID,
             Item: ticket,
             ConditionExpression: "attribute_not_exists(id)",
         })
     );
-
-    //console.log("RES: " + JSON.stringify(res));
 }
 
+// utility method that creates 30 randomly generated tickets
 const someRandomTickets = async () => {
     const tickets = []
     const ticketsPromises = []
     for (let i = 0; i < 30; i++) {
+        // create ticket object
         let ticket = {
             id: uuid.v4(),
             status: "open",
@@ -36,12 +37,12 @@ const someRandomTickets = async () => {
         tickets.push(ticket)
         ticketsPromises.push(putTicket(ticket))
     }
-    //console.debug("TICKETS: ", JSON.stringify(tickets))
     await Promise.all(ticketsPromises)
     console.debug("CREATED ALL TICKETS")
     return tickets
 }
 
+// utility method that creates some partial ticket data for testing
 const someTicketData = async () => {
     return {
         priority: "high",

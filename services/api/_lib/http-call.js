@@ -2,6 +2,7 @@ require("dotenv").config();
 const https = require("https");
 let urlParse = require("url").URL;
 
+// utility to perform requests with a more intuitive parameter structure
 module.exports = async (url, path, method, body) => {
   let endpoint = new urlParse(url).hostname.toString();
 

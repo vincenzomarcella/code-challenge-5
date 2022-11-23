@@ -4,32 +4,30 @@ require("dotenv").config();
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { DynamoDBDocumentClient, GetCommand, DeleteCommand, ScanCommand, PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb"); 
 const { TICKETS_TABLE_ID } = process.env;
-
 const { v4: uuidv4 } = require('uuid');
-uuidv4(); // ⇨ '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed'
 
+// resolver for fetching single and multiple tickets
 const fetch = async (event) => {
-    // init the client
+    // create dynamo client
     const client = new DynamoDBClient();
     const doc = DynamoDBDocumentClient.from(client)
 
-    console.debug("EVENT: ", JSON.stringify(event))
+    console.debug("FETCH EVENT: ", JSON.stringify(event))
 
+    // if the ticket id is passed as parameter
     if (event.pathParameters.ticketID) {
-        const ticketID = event.pathParameters.ticketID
-        console.debug("TICKET ID: ", ticketID)
         try {
+            // perform a getItem with the passed id
             const res = await doc.send(
                 new GetCommand({
                     Key: {
-                        id: ticketID
+                        id: event.pathParameters.ticketID
                     },
                     TableName: TICKETS_TABLE_ID
                 })
             );
 
-            console.log("RES: " + JSON.stringify(res));
-
+            console.debug("RES: " + JSON.stringify(res));
             return {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -40,27 +38,28 @@ const fetch = async (event) => {
             return {
                 statusCode: 503,
                 body: JSON.stringify({
-                    message: "Error while fetching tickets",
+                    message: "Error while fetching ticket",
                     error: err,
                 }),
             };
         }
     } else {
+        // prepare default parameters for the scan
         const params = {
             TableName: TICKETS_TABLE_ID,
             Limit: 10
         }
+        // if a next token is passed put it in the params
         if (event.pathParameters.nextToken) {
             params["ExclusiveStartKey"] = {
                 id: event.pathParameters.nextToken
             }
         }
         try {
+            // perform a scan with the generated params
             const res = await doc.send(
                 new ScanCommand(params)
             );
-
-            console.log("RES: " + JSON.stringify(res));
 
             return {
                 statusCode: 200,
@@ -81,13 +80,14 @@ const fetch = async (event) => {
     }
 }
 
+// resolver for updating a single ticket
 const update = async (event) => {
     console.debug("UPDATE EVENT: ", JSON.stringify(event))
-    const ticketID = event.pathParameters.ticketID
 
+    // parse request body
     const body = JSON.parse(event.body)
-    console.debug("EVENT BODY: ", JSON.stringify(body))
 
+    // if there is no ticket id and no updates are passed return error
     if (!ticketID || (!body.updates.priority && !body.updates.description)) {
         return {
             statusCode: 400,
@@ -97,18 +97,26 @@ const update = async (event) => {
         };
     }
 
+    // variables where the update expression is generated
     let updateExpression = "SET "
     let expressionAttributeNames = {}
     let expressionAttributeValues = {}
 
+    // for each update to do
     for(const attribute in body.updates) {
+        // create expression attribute name and value
         const expressionAttributeName = `#${attribute}`
         const expressionAttributeValue = `:${attribute}`
+
+        // add the attribute name and value to the expression
         updateExpression = updateExpression + ` ${expressionAttributeName} = ${expressionAttributeValue},`
+
+        // add the attribute name and value to the params
         expressionAttributeValues[expressionAttributeValue] = `${body.updates[attribute]}`
         expressionAttributeNames[expressionAttributeName] = `${attribute}`
     }
 
+    // remove trailing comma from update expression
     updateExpression = updateExpression.slice(0, -1); 
 
     console.debug("UPDATE EXPRESSION: ", JSON.stringify(updateExpression))
@@ -116,7 +124,7 @@ const update = async (event) => {
     console.debug("EXPRESSION ATTRIBUTE NAMES: ", JSON.stringify(expressionAttributeNames))
 
     try {
-        // init the client
+        // create dynamo client
         const client = new DynamoDBClient();
         const doc = DynamoDBDocumentClient.from(client)
 
@@ -124,16 +132,17 @@ const update = async (event) => {
             new UpdateCommand({
                 TableName: TICKETS_TABLE_ID,
                 Key: {
-                    id: ticketID
+                    id: event.pathParameters.ticketID
                 },
                 UpdateExpression: updateExpression,
                 ExpressionAttributeNames: expressionAttributeNames,
                 ExpressionAttributeValues: expressionAttributeValues,
+                // return the updated object
                 ReturnValues: "ALL_NEW"
             })
         );
 
-        console.log("RES: " + JSON.stringify(res));
+        console.debug("RES: " + JSON.stringify(res));
 
         return {
             statusCode: 200,
@@ -153,10 +162,10 @@ const update = async (event) => {
 }
 
 const open = async (event) => {
+    console.debug("OPEN EVENT: ", JSON.stringify(event))
     const body = JSON.parse(event.body);
-    //console.log("BODY: " + JSON.stringify(body));
 
-    /*
+    
     // validate input
     if (!body.name || !body.surname)
         return {
@@ -164,9 +173,9 @@ const open = async (event) => {
         body: JSON.stringify({
             message: "Invalid input",
         }),
-        };
-        */
-    // build item accordingly to the domain
+    };
+
+    // build the ticket data
     const ticket = {
         id: uuidv4(),
         priority: body.ticket.priority,
@@ -175,13 +184,14 @@ const open = async (event) => {
         description: body.ticket.description
     };
 
-    console.debug("TICKET: ", JSON.stringify(ticket))
+    console.debug("GENERATED TICKET: ", JSON.stringify(ticket))
 
     try {
-        // init the client
+        // create dynamo client
         const client = new DynamoDBClient();
         const doc = DynamoDBDocumentClient.from(client)
 
+        // perform putItem
         const res = await doc.send(
             new PutCommand({
                 TableName: TICKETS_TABLE_ID,
@@ -190,7 +200,7 @@ const open = async (event) => {
             })
         );
 
-        console.log("RES: " + JSON.stringify(res));
+        console.debug("RES: " + JSON.stringify(res));
 
         return {
             statusCode: 200,
@@ -210,16 +220,17 @@ const open = async (event) => {
 }
 
 const close = async (event) => {
-    const ticketID = event.pathParameters.ticketID
-    console.debug("TICKET ID: ", JSON.stringify(ticketID))
+    console.debug("TICKET ID: ", JSON.stringify(event.pathParameters.ticketID))
     try {
+        // create dynamo client
         const client = new DynamoDBClient();
         const doc = DynamoDBDocumentClient.from(client)
 
+        // perform deleteItem
         const res = await doc.send(
             new DeleteCommand({
                 Key: {
-                    id: ticketID
+                    id: event.pathParameters.ticketID
                 },
                 TableName: TICKETS_TABLE_ID
             })
@@ -230,7 +241,7 @@ const close = async (event) => {
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: "Ticket with id " + ticketID + " has been deleted!"
+                message: "Ticket with id " + event.pathParameters.ticketID + " has been deleted!"
             }),
         };
     } catch (err) {
