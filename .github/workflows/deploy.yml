@@ -6,6 +6,11 @@ on:
       - dev
       - staging
       - prod
+  pull_request:
+    branches:
+      - prod
+      - staging
+      - dev
 
 jobs:
   deploy:
@@ -30,8 +35,12 @@ jobs:
     - name: Install dependencies
       run: npm i
 
+    - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v6
+
     - name: Deploy ephemeral environment
-      run: serverless deploy --stage ${{ BRANCH_NAME }}
+      run: serverless deploy --stage ${{ steps.branch-name.outputs.current_branch }}
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
