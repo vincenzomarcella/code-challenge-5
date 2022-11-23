@@ -19,9 +19,8 @@ module.exports = async (url, path, method, body) => {
     };
   }
 
-  // IF YOU WANT TO DOUBLE CHECK YOUR REQUEST
-  // console.log("REQUEST: " + JSON.stringify(req));
-  // console.log("BODY: " + JSON.stringify(body));
+  // console.debug("REQUEST: " + JSON.stringify(req));
+  // console.debug("BODY: " + JSON.stringify(body));
 
   const data = await new Promise((resolve, reject) => {
     const httpRequest = https.request(req, (res) => {
