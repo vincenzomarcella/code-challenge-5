@@ -46,11 +46,18 @@ const fetch = async (event) => {
             };
         }
     } else {
+        const params = {
+            TableName: TICKETS_TABLE_ID,
+            Limit: 10
+        }
+        if (event.pathParameters.nextToken) {
+            params["ExclusiveStartKey"] = {
+                id: event.pathParameters.nextToken
+            }
+        }
         try {
             const res = await doc.send(
-                new ScanCommand({
-                    TableName: TICKETS_TABLE_ID
-                })
+                new ScanCommand(params)
             );
 
             console.log("RES: " + JSON.stringify(res));
@@ -58,7 +65,8 @@ const fetch = async (event) => {
             return {
                 statusCode: 200,
                 body: JSON.stringify({
-                    tickets: res.Items
+                    tickets: res.Items,
+                    nextToken: res.LastEvaluatedKey.id
                 }),
             };
         } catch (err) {
