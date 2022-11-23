@@ -88,7 +88,7 @@ const update = async (event) => {
     const body = JSON.parse(event.body)
 
     // if there is no ticket id and no updates are passed return error
-    if (!ticketID || (!body.updates.priority && !body.updates.description)) {
+    if (!event.pathParameters.ticketID || (!body.updates.priority && !body.updates.description)) {
         return {
             statusCode: 400,
             body: JSON.stringify({
@@ -167,7 +167,7 @@ const open = async (event) => {
 
     
     // validate input
-    if (!body.name || !body.surname)
+    if (!body.ticket.priority || !body.ticket.description)
         return {
         statusCode: 400,
         body: JSON.stringify({
