@@ -36,8 +36,8 @@ jobs:
       run: npm i
 
     - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v6
+      id: branch-name
+      uses: tj-actions/branch-names@v6
 
     - name: Deploy ephemeral environment
       run: serverless deploy --stage ${{ steps.branch-name.outputs.current_branch }}
