@@ -164,7 +164,6 @@ const update = async (event) => {
 const open = async (event) => {
     console.debug("OPEN EVENT: ", JSON.stringify(event))
     const body = JSON.parse(event.body);
-
     
     // validate input
     if (!body.ticket.priority || !body.ticket.description)
@@ -248,7 +247,7 @@ const close = async (event) => {
         return {
             statusCode: 503,
             body: JSON.stringify({
-                message: "Error while fetching tickets",
+                message: "Error while deleting ticket",
                 error: err,
             }),
         };
